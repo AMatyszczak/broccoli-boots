@@ -1,25 +1,25 @@
 <script>
-  // import LayerCake from "./layercake/src/LayerCake.svelte";
-
-  import { LayerCake, Svg, Canvas, Html } from "layercake";
-  import Scatter from "./components/Scatter.svg.svelte";
+  import { LayerCake, Svg } from "layercake";
   import Line from "./components/Line.svelte";
   import AxisX from "./components/AxisX.svelte";
   import AxisY from "./components/AxisY.svelte";
 
-  let files;
+  import { SelectFile } from "../wailsjs/go/main/App";
 
-  $: if (files) {
-    // Note that `files` is of type `FileList`, not an Array:
-    // https://developer.mozilla.org/en-US/docs/Web/API/FileList
-    console.log(files);
-
-    for (const file of files) {
-      console.log(`${file.name}: ${file.size} bytes`);
+  function doIt(event) {
+    try {
+      SelectFile()
+        .then((result) => {
+          console.log("result:", result);
+        })
+        .catch((err) => {
+          console.error("error:", err);
+        });
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  // Define some data
   const allPoints = [
     {
       points: [
@@ -45,7 +45,7 @@
 <main>
   <div class="charts-container">
     {#each allPoints as { points }, i}
-      <label for="many">{i}</label>
+      <label>{i}</label>
       <div class="chart-container">
         <LayerCake x="x" y="y" data={points}>
           <Svg>
@@ -57,9 +57,9 @@
       </div>
     {/each}
   </div>
+  <div id="lul" />
   <div class="input-box" id="input">
-    <label for="many">Upload multiple files of any type:</label>
-    <input bind:files id="many" multiple type="file" />
+    <label for="many" on:click={doIt}>Upload</label>
   </div>
 </main>
 
