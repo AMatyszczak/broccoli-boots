@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"log"
 
+	"github.com/dgraph-io/badger/v3"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -11,12 +13,20 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+var db *badger.DB
+
 func main() {
-	// Create an instance of the app structure
+	var err error
+	db, err = badger.Open(badger.DefaultOptions("").WithInMemory(true))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	app := NewApp()
 
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "broccoli-boots",
 		Width:  1024,
 		Height: 768,
