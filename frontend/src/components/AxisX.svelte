@@ -28,7 +28,7 @@
   export let xTick = 0;
 
   /** @type {Number} [yTick=16] - The distance from the baseline to place each tick value. */
-  export let yTick = 16;
+  export let yTick = 32;
 
   $: isBandwidth = typeof $xScale.bandwidth === "function";
 
@@ -76,6 +76,9 @@
         y={yTick}
         dx=""
         dy=""
+        transform={`rotate(-30 ${
+          isBandwidth ? $xScale.bandwidth() / 2 + xTick : xTick
+        }, ${yTick})`}
         text-anchor={textAnchor(i)}>{formatTick(tick)}</text
       >
     </g>

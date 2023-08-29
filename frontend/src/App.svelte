@@ -7,6 +7,7 @@
   import AxisY from "./components/AxisY.svelte";
 
   import { SelectFile, FetchOperationsForFilter } from "../wailsjs/go/main/App";
+  import { scaleBand, scaleTime } from "d3-scale";
 
   function selectOperationsStatements(event) {
     SelectFile().catch((err) => {
@@ -14,43 +15,49 @@
     });
   }
 
-  const allPoints = [
-    {
-      points: [
-        { x: 0, y: 0 },
-        { x: 5, y: 10 },
-        { x: 10, y: 20 },
-        { x: 15, y: 30 },
-        { x: 20, y: 3 },
-      ],
-    },
-    {
-      points: [
-        { x: 0, y: 0 },
-        { x: 5, y: 10 },
-        { x: 10, y: 20 },
-        { x: 15, y: 20 },
-        { x: 20, y: 10 },
-      ],
-    },
-  ];
+  FetchOperationsForFilter({ operationType: "type" }).then((operations) => {
+    const points = [];
+    operations.forEach((operation) => {
+      points.push({
+        x: Date.parse(operation["Data operacji"]),
+        y: parseFloat(operation["Kwota"]),
+      });
+    });
+    allPoints.push({ points: points });
+    allPoints = allPoints;
+    console.log("allPoints:", allPoints);
+  });
+
+  let allPoints = [];
   rt.EventsOn("operations-loaded", (message) => {
-    FetchOperationsForFilter({ operationType: "type" }).then((result) => {
-      console.log("FetchOperationsForFilter:", result);
+    FetchOperationsForFilter({ operationType: "type" }).then((operations) => {
+      const points = [];
+      operations.forEach((operation) => {
+        points.push({
+          x: Date.parse(operation["Data operacji"]),
+          y: parseFloat(operation["Kwota"]),
+        });
+      });
+      allPoints.push({ points: points });
+      allPoints = allPoints;
+      console.log("allPoints:", allPoints);
     });
   });
 </script>
 
 <main>
   <label for="many" on:click={selectOperationsStatements}>Upload</label>
-
   <div class="charts-container">
+    <div class="text-sky-500 dark:text-sky-400">Sarah Dayan</div>
+
+    <button class="button border-orange-900 border">Greetings</button>
+
     {#each allPoints as { points }, i}
       <label>{i}</label>
       <div class="chart-container">
-        <LayerCake x="x" y="y" data={points}>
+        <LayerCake x="x" y="y" data={points} xScale={scaleTime()}>
           <Svg>
-            <AxisX />
+            <AxisX formatTick={(d) => new Date(d).toLocaleDateString()} />
             <AxisY />
             <Line stroke="#abaaaa" />
           </Svg>
