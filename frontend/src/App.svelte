@@ -7,7 +7,7 @@
   import AxisY from "./components/AxisY.svelte";
 
   import { SelectFile, FetchOperationsForFilter } from "../wailsjs/go/main/App";
-  import { scaleBand, scaleTime } from "d3-scale";
+  import { scaleTime } from "d3-scale";
 
   function selectOperationsStatements(event) {
     SelectFile().catch((err) => {
@@ -15,8 +15,13 @@
     });
   }
 
+  let allPoints = [];
+  let tableOperations = [];
+
   FetchOperationsForFilter({ operationType: "type" }).then((operations) => {
     const points = [];
+    tableOperations = operations;
+    console.log("tableOperations:", tableOperations);
     operations.forEach((operation) => {
       points.push({
         x: Date.parse(operation["Data operacji"]),
@@ -28,10 +33,11 @@
     console.log("allPoints:", allPoints);
   });
 
-  let allPoints = [];
   rt.EventsOn("operations-loaded", (message) => {
     FetchOperationsForFilter({ operationType: "type" }).then((operations) => {
       const points = [];
+      tableOperations = operations;
+      console.log("tableOperations:", tableOperations);
       operations.forEach((operation) => {
         points.push({
           x: Date.parse(operation["Data operacji"]),
@@ -46,12 +52,9 @@
 </script>
 
 <main>
+  <meta charset="UTF-8" />
   <label for="many" on:click={selectOperationsStatements}>Upload</label>
   <div class="charts-container">
-    <div class="text-sky-500 dark:text-sky-400">Sarah Dayan</div>
-
-    <button class="button border-orange-900 border">Greetings</button>
-
     {#each allPoints as { points }, i}
       <label>{i}</label>
       <div class="chart-container">
@@ -64,6 +67,37 @@
         </LayerCake>
       </div>
     {/each}
+  </div>
+  <div class="table-container">
+    <!-- Native Table Element -->
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Position</th>
+          <th>Name</th>
+          <th>Symbol</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each tableOperations as operation, i}
+          <tr>
+            <td>{i}</td>
+            <td>{operation["Data operacji"]}</td>
+            <td>{operation["Data waluty"]}</td>
+            <td>{operation["Kwota"]}</td>
+            <td>{operation["Opis transakcji"]}</td>
+            <td>{operation["Saldo po transakcji"]}</td>
+            <td>{operation["Typ transakcji"]}</td>
+          </tr>
+        {/each}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">Calculated Total Weight</th>
+          <td>10</td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
 </main>
 

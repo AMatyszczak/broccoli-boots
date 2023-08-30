@@ -1,0 +1,10 @@
+import { Config } from 'tailwindcss'
+
+export default {
+    content: ["./index.html",
+        "./src/**/*.{vue,js,ts,jsx,tsx,svelte}",],
+    theme: {
+        extend: {},
+    },
+    plugins: [],
+}
